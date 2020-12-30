@@ -10,9 +10,9 @@ class UserRepo:
     def addUser(self, user):
         self.table.insert(user.toDict())
 
-    def returnOne(self, username):
+    def returnOne(self, username, password):
         user = Query()
-        element = self.table.search(user.username == username)
+        element = self.table.search(user.username == username and user.password == password)
 
         if element:
             return User(**element[0])

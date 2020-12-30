@@ -3,7 +3,8 @@ from flask import Blueprint, jsonify, request, json
 from domain.user import User
 from utilities.utilities import Utils
 from domain.recipe import Recipe
-from utilities.token import createToken
+from utilities.token import createToken, verify
+from api.v1.sockets import socketio
 
 
 api = Blueprint('api_v1', __name__)
@@ -23,16 +24,26 @@ class InvalidUsage(Exception):
         rv['message'] = self.message
         return rv
 
+def getUsername():
+    token = request.headers['Authorization'].split(" ")[1]
+
+    credentials = verify(token)
+    credentials = json.loads(credentials)
+
+    return credentials["username"]
+
 @api.errorhandler(InvalidUsage)
 def handle_invalid_usage(error):
     response = jsonify(error.to_dict())
     response.status_code = error.status_code
     return response
 
-@api.route('/recipes')
-def products():
+@api.route('/recipes/<limit>/<page>')
+def products(limit, page):
+    username = getUsername()
+
     recipe_repo = Utils.recipe_repo
-    list = recipe_repo.returnRecipes()
+    list = recipe_repo.returnRecipes(username, int(limit), int(page))
     result = []
 
     for element in list:
@@ -52,8 +63,13 @@ def create():
     data = request.get_json()
 
     recipe_repo = Utils.recipe_repo
-    print(data)
-    recipe_repo.addRecipe(Recipe(**data))
+
+    recipe = Recipe(**data)
+    recipe.username = getUsername()
+
+    recipe_repo.addRecipe(recipe)
+
+    socketio.emit('recipe_added', data)
 
     print("Post")
     print(data)
@@ -66,12 +82,10 @@ def update(id):
 
     recipe_repo = Utils.recipe_repo
 
-    # if repo.returnOne(data["id"]):
-    #     repo.updateRecipe(Recipe(**data))
-    # else:
-    #     repo.addRecipe(Recipe(**data))
+    recipe = Recipe(**data)
+    recipe.username = getUsername()
 
-    recipe_repo.updateRecipe(Recipe(**data))
+    recipe_repo.updateRecipe(recipe)
 
     print("Put")
     print(data)
@@ -86,8 +100,8 @@ def login():
     user_repo = Utils.user_repo
     user = User(**credentials)
 
-    if user_repo.returnOne(user.username):
-        return createToken(credentials)
+    if user_repo.returnOne(user.username, user.password):
+        return { 'token' : createToken(credentials)}
     else:
         raise InvalidUsage('Username or Password incorrect', status_code=410)
 

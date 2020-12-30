@@ -8,12 +8,16 @@ class RecipeRepo:
         self.table = database.table("Recipes")
         self.database = database
 
-    def returnRecipes(self):
-        dictRecipes = self.table.all()
+    def returnRecipes(self, username, limit, page):
+        recipe = Query()
+        elements = self.table.search(recipe.username == username)
+
         recipes = []
 
-        for recipe in dictRecipes:
-            recipes.append(Recipe(**recipe))
+        start = limit * (page - 1)
+        end = min(len(elements), limit * page)
+        for i in range(start, end):
+            recipes.append(Recipe(**elements[i]))
 
         return recipes
 

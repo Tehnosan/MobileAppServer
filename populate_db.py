@@ -8,9 +8,10 @@ user_repo = Utils.user_repo
 
 recipe_repo.clear()
 
-recipe_repo.addRecipe(Recipe("1", "Lava Cake", "10", "easy"))
-recipe_repo.addRecipe(Recipe("2", "Pizza", "25", "medium"))
-recipe_repo.addRecipe(Recipe("3", "Lasagna", "45", "hard"))
+for i in range(35):
+    recipe = Recipe(i.__str__(), "Name" + (i + 1).__str__(), "10", "easy")
+    recipe.username = "a"
+    recipe_repo.addRecipe(recipe)
 
-user_repo.addUser(User("admin", "pass"))
-user_repo.addUser(User("Sandrino", "pass"))
+user_repo.addUser(User("a", "a"))
+user_repo.addUser(User("b", "b"))

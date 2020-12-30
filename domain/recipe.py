@@ -7,12 +7,14 @@ class Recipe:
         self.name = name
         self.time = time
         self.difficulty = difficulty
+        self.username = ""
 
     def toDict(self):
         return {
             'id': self.id,
             'name': self.name,
             'time': self.time,
-            'difficulty': self.difficulty
+            'difficulty': self.difficulty,
+            'username' : self.username
         }
 
