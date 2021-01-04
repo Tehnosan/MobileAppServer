@@ -66,6 +66,7 @@ def create():
 
     recipe = Recipe(**data)
     recipe.username = getUsername()
+    recipe.id = recipe_repo.length().__str__()
 
     recipe_repo.addRecipe(recipe)
 

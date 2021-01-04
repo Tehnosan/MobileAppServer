@@ -39,3 +39,6 @@ class RecipeRepo:
 
     def clear(self):
         self.database.drop_tables()
+
+    def length(self):
+        return len(self.table)
